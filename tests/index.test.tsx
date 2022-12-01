@@ -1,252 +1,102 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-import Portal from '../src';
+import getMiniDecimal from '../src/MiniDecimal';
+import type { DecimalClass, ValueType } from '../src/MiniDecimal';
 
-global.isOverflow = true;
+jest.mock('../src/supportUtil');
+const { supportBigInt } = require('../src/supportUtil');
 
-jest.mock('../src/util', () => {
-  const origin = jest.requireActual('../src/util');
-  return {
-    ...origin,
-    isBodyOverflowing: () => global.isOverflow,
-  };
-});
-
-describe('Portal', () => {
-  beforeEach(() => {
-    global.isOverflow = true;
-  });
-
-  it('Order', () => {
-    render(
-      <Portal open debug="root">
-        <p>Root</p>
-        <Portal open debug="parent">
-          <p>Parent</p>
-          <Portal open debug="children">
-            <p>Children</p>
-          </Portal>
-        </Portal>
-      </Portal>,
-    );
-
-    const pList = Array.from(document.body.querySelectorAll('p'));
-    expect(pList).toHaveLength(3);
-    expect(pList.map(p => p.textContent)).toEqual([
-      'Root',
-      'Parent',
-      'Children',
-    ]);
-  });
-
-  describe('getContainer', () => {
-    it('false', () => {
-      const { container } = render(
-        <>
-          Hello
-          <Portal open getContainer={false}>
-            Bamboo
-          </Portal>
-          Light
-        </>,
-      );
-
-      expect(container).toMatchSnapshot();
+describe('MiniDecimal', () => {
+  function testSuite() {
+    it('empty', () => {
+      const num = getMiniDecimal('');
+      expect(num.isEmpty()).toBeTruthy();
     });
 
-    it('customize in same level', () => {
-      let renderTimes = 0;
-
-      const Content = () => {
-        React.useEffect(() => {
-          renderTimes += 1;
-        });
-
-        return <>Bamboo</>;
-      };
-
-      const Demo = () => {
-        const divRef = React.useRef();
-
-        return (
-          <div ref={divRef} className="holder">
-            <Portal open getContainer={() => divRef.current}>
-              <Content />
-            </Portal>
-          </div>
-        );
-      };
-
-      const { container } = render(<Demo />);
-      expect(container).toMatchSnapshot();
-      expect(renderTimes).toEqual(1);
+    it('NaN', () => {
+      const nan = getMiniDecimal(NaN);
+      expect(nan.isNaN()).toBeTruthy();
+      expect(nan.toNumber()).toBeNaN();
     });
-  });
 
-  describe('dynamic change autoLock', () => {
-    function test(name: string, config?: Parameters<typeof render>[1]) {
-      it(name, () => {
-        const { rerender } = render(<Portal open />, config);
-        expect(document.body).not.toHaveStyle({
-          overflowY: 'hidden',
-        });
+    it('negate', () => {
+      const num = getMiniDecimal('-9.3');
+      expect(num.negate().toString()).toEqual('9.3');
+      expect(num.negate().negate().toString()).toEqual('-9.3');
+    });
 
-        rerender(<Portal open autoLock />);
-        expect(document.body).toHaveStyle({
-          overflowY: 'hidden',
-        });
+    it('equals', () => {
+      expect(
+        getMiniDecimal('-9.3').equals(getMiniDecimal('-9.3')),
+      ).toBeTruthy();
+      expect(getMiniDecimal('9.3').equals(getMiniDecimal('-9.3'))).toBeFalsy();
+    });
 
-        rerender(<Portal open={false} autoLock />);
-        expect(document.body).not.toHaveStyle({
-          overflowY: 'hidden',
-        });
+    it('lessEquals', () => {
+      expect(
+        getMiniDecimal('-2').lessEquals(getMiniDecimal('-1')),
+      ).toBeTruthy();
+      expect(getMiniDecimal('2').equals(getMiniDecimal('1'))).toBeFalsy();
+    });
 
-        rerender(<Portal open autoLock />);
-        expect(document.body).toHaveStyle({
-          overflowY: 'hidden',
-        });
+    describe('add', () => {
+      it('basic', () => {
+        let num = getMiniDecimal('11.28');
+        num = num.add('-9.3');
+        expect(num.toString()).toEqual('1.98');
 
-        rerender(<Portal open autoLock={false} />);
-        expect(document.body).not.toHaveStyle({
-          overflowY: 'hidden',
-        });
+        num = num.add('10.02');
+        expect(num.toString()).toEqual('12');
       });
-    }
 
-    test('basic');
-    test('StrictMode', {
-      wrapper: React.StrictMode,
+      it('invalidate src', () => {
+        const invalidateNum = getMiniDecimal(NaN);
+        expect(invalidateNum.isInvalidate()).toBeTruthy();
+        expect(invalidateNum.add('1').toString()).toEqual('1');
+      });
+
+      it('invalidate tgt', () => {
+        expect(getMiniDecimal('233').add(NaN).toString()).toEqual('233');
+      });
     });
+  }
 
-    it('window not scrollable', () => {
-      global.isOverflow = false;
-      render(<Portal open />);
-
-      expect(document.body).not.toHaveStyle({
-        overflowY: 'hidden',
+  // ==========================================================
+  describe('BigIntDecimal', () => {
+    beforeEach(() => {
+      supportBigInt.mockImplementation(() => {
+        return true;
       });
     });
 
-    it('not lock screen when getContainer is not body', () => {
-      const div = document.createElement('div');
-      document.body.appendChild(div);
-      render(
-        <Portal open autoLock getContainer={() => div}>
-          Bamboo
-        </Portal>,
-      );
+    afterEach(() => {
+      supportBigInt.mockRestore();
+    });
 
-      expect(document.body).not.toHaveStyle({
-        overflowY: 'hidden',
+    testSuite();
+  });
+
+  describe('NumberDecimal', () => {
+    beforeEach(() => {
+      supportBigInt.mockImplementation(() => {
+        return false;
       });
     });
 
-    it('lock when getContainer give document.body', () => {
-      render(
-        <Portal open autoLock getContainer={() => document.body}>
-          Bamboo
-        </Portal>,
-      );
-
-      expect(document.body).toHaveStyle({
-        overflowY: 'hidden',
-      });
-    });
-  });
-
-  it('autoDestroy', () => {
-    expect(document.querySelector('p')).toBeFalsy();
-
-    const renderDemo = (open: boolean, autoDestroy: boolean) => (
-      <Portal open={open} autoDestroy={autoDestroy}>
-        <p>Root</p>
-      </Portal>
-    );
-
-    const { rerender } = render(renderDemo(true, false));
-    expect(document.querySelector('p')).toBeTruthy();
-
-    rerender(renderDemo(false, false));
-    expect(document.querySelector('p')).toBeTruthy();
-
-    rerender(renderDemo(false, true));
-    expect(document.querySelector('p')).toBeFalsy();
-  });
-
-  describe('ref-able', () => {
-    it('support forwardRef', () => {
-      const elementRef = React.createRef<HTMLParagraphElement>();
-      const portalRef = React.createRef();
-
-      render(
-        <Portal ref={portalRef} open>
-          <p ref={elementRef}>Bamboo</p>
-        </Portal>,
-      );
-
-      expect(elementRef.current).toBe(document.querySelector('p'));
-      expect(portalRef.current).toBe(document.querySelector('p'));
+    afterEach(() => {
+      supportBigInt.mockRestore();
     });
 
-    it('not support fragment', () => {
-      const elementRef = React.createRef<HTMLParagraphElement>();
-      const portalRef = React.createRef();
+    testSuite();
 
-      render(
-        <Portal ref={portalRef} open>
-          <>
-            <p ref={elementRef}>Bamboo</p>
-          </>
-        </Portal>,
-      );
-
-      expect(elementRef.current).toBe(document.querySelector('p'));
-      expect(portalRef.current).toBeFalsy();
+    it('max safe integer', () => {
+      expect(
+        getMiniDecimal(Number.MAX_SAFE_INTEGER).add(Number.MAX_SAFE_INTEGER).toNumber(),
+      ).toEqual(Number.MAX_SAFE_INTEGER);
     });
 
-    it('not support FC', () => {
-      const elementRef = React.createRef<HTMLParagraphElement>();
-      const portalRef = React.createRef();
-
-      const P = (props: any) => <p {...props} />;
-
-      render(
-        <Portal ref={portalRef} open>
-          <P ref={elementRef}>Bamboo</P>
-        </Portal>,
-      );
-
-      expect(elementRef.current).toBeFalsy();
-      expect(portalRef.current).toBeFalsy();
+    it('min safe integer', () => {
+      expect(
+        getMiniDecimal(Number.MIN_SAFE_INTEGER).add(Number.MIN_SAFE_INTEGER).toNumber(),
+      ).toEqual(Number.MIN_SAFE_INTEGER);
     });
-  });
-
-  it('first render should ref accessible', () => {
-    let checked = false;
-
-    const Demo = ({ open }: { open?: boolean }) => {
-      const pRef = React.useRef();
-
-      React.useEffect(() => {
-        if (open) {
-          checked = true;
-          expect(pRef.current).toBeTruthy();
-        }
-      }, [open]);
-
-      return (
-        <Portal open={open}>
-          <div>
-            <p ref={pRef} />
-          </div>
-        </Portal>
-      );
-    };
-
-    const { rerender } = render(<Demo />);
-    expect(checked).toBeFalsy();
-
-    rerender(<Demo open />);
-    expect(checked).toBeTruthy();
   });
 });
