@@ -1,5 +1,5 @@
 ---
-title: rc-portal
+title: mini-decimal
 ---
 
 <embed src="../README.md"></embed>
