@@ -1,4 +1,11 @@
+import type { ValueType } from './interface';
 import { supportBigInt } from './supportUtil';
+
+export function isEmpty(value: ValueType) {
+  return (
+    (!value && value !== 0 && !Number.isNaN(value)) || !String(value).trim()
+  );
+}
 
 /**
  * Format string number to readable number
