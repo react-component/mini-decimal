@@ -1,5 +1,4 @@
 import getMiniDecimal from '../src/MiniDecimal';
-import type { DecimalClass, ValueType } from '../src/MiniDecimal';
 
 jest.mock('../src/supportUtil');
 const { supportBigInt } = require('../src/supportUtil');

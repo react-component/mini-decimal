@@ -9,6 +9,8 @@ import { supportBigInt } from './supportUtil';
 // Still support origin export
 export { NumberDecimal, BigIntDecimal };
 
+export type { DecimalClass, ValueType };
+
 export default function getMiniDecimal(value: ValueType): DecimalClass {
   // We use BigInt here.
   // Will fallback to Number if not support.
