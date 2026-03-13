@@ -59,13 +59,32 @@ export function isE(number: string | number) {
   return !Number.isNaN(Number(str)) && str.includes('e');
 }
 
-export function expandScientificNotation(numStr: string) {
-  const [mantissa, exponent] = numStr.toLowerCase().split('e');
-  const exp = Number(exponent);
+type ParsedScientificNotation = {
+  decimal: string;
+  digits: string;
+  exponent: number;
+  integer: string;
+  negative: boolean;
+};
+
+function parseScientificNotation(numStr: string): ParsedScientificNotation {
+  const [mantissa, exponent = '0'] = numStr.toLowerCase().split('e');
   const negative = mantissa.startsWith('-');
   const unsignedMantissa = negative ? mantissa.slice(1) : mantissa;
   const [integer = '0', decimal = ''] = unsignedMantissa.split('.');
   const digits = `${integer}${decimal}`.replace(/^0+/, '') || '0';
+
+  return {
+    decimal,
+    digits,
+    exponent: Number(exponent),
+    integer,
+    negative,
+  };
+}
+
+function expandScientificNotation(parsed: ParsedScientificNotation) {
+  const { decimal, digits, exponent, integer, negative } = parsed;
 
   if (digits === '0') {
     return '0';
@@ -74,7 +93,7 @@ export function expandScientificNotation(numStr: string) {
   const integerDigits = integer.replace(/^0+/, '').length;
   const leadingDecimalZeros = (decimal.match(/^0*/) || [''])[0].length;
   const initialDecimalIndex = integerDigits || -leadingDecimalZeros;
-  const decimalIndex = initialDecimalIndex + exp;
+  const decimalIndex = initialDecimalIndex + exponent;
 
   let expanded = '';
 
@@ -89,6 +108,14 @@ export function expandScientificNotation(numStr: string) {
   return `${negative ? '-' : ''}${expanded}`;
 }
 
+function getScientificPrecision(parsed: ParsedScientificNotation) {
+  if (parsed.exponent >= 0) {
+    return Math.max(0, parsed.decimal.length - parsed.exponent);
+  }
+
+  return Math.abs(parsed.exponent) + parsed.decimal.length;
+}
+
 /**
  * [Legacy] Convert 1e-9 to 0.000000001.
  * This may lose some precision if user really want 1e-9.
@@ -97,16 +124,7 @@ export function getNumberPrecision(number: string | number) {
   const numStr: string = String(number);
 
   if (isE(number)) {
-    const [mantissa, exponent = '0'] = numStr.toLowerCase().split('e');
-    const decimalMatch = mantissa.match(/\.(\d+)/);
-    const decimalLength = decimalMatch?.[1]?.length || 0;
-    const exp = Number(exponent);
-
-    if (exp >= 0) {
-      return Math.max(0, decimalLength - exp);
-    }
-
-    return Math.abs(exp) + decimalLength;
+    return getScientificPrecision(parseScientificNotation(numStr));
   }
 
   return numStr.includes('.') && validateNumber(numStr)
@@ -132,12 +150,11 @@ export function num2str(number: number): string {
       );
     }
 
-    const precision = getNumberPrecision(numStr);
+    const parsed = parseScientificNotation(numStr);
+    const precision = getScientificPrecision(parsed);
 
     numStr =
-      precision > 100
-        ? expandScientificNotation(numStr)
-        : number.toFixed(precision);
+      precision > 100 ? expandScientificNotation(parsed) : number.toFixed(precision);
   }
 
   return trimNumber(numStr).fullStr;

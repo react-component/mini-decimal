@@ -4,7 +4,7 @@ import getMiniDecimal, {
   toFixed,
 } from '../src/MiniDecimal';
 import type { DecimalClass, ValueType } from '../src/MiniDecimal';
-import { expandScientificNotation, num2str } from '../src/numberUtil';
+import { num2str } from '../src/numberUtil';
 
 jest.mock('../src/supportUtil');
 const { supportBigInt } = require('../src/supportUtil');
@@ -145,14 +145,11 @@ describe('InputNumber.Util', () => {
   });
 
   describe('scientific notation', () => {
-    it('expands fractional mantissas correctly', () => {
-      expect(expandScientificNotation('0.123e-1')).toEqual('0.0123');
-      expect(expandScientificNotation('-0.123e-1')).toEqual('-0.0123');
-      expect(expandScientificNotation('0.00123e2')).toEqual('0.123');
-      expect(expandScientificNotation('0e5')).toEqual('0');
-    });
-
-    it('keeps num2str behavior correct for normalized numbers', () => {
+    it('keeps num2str behavior correct', () => {
+      expect(num2str(0.123e-1)).toEqual('0.0123');
+      expect(num2str(-0.123e-1)).toEqual('-0.0123');
+      expect(num2str(0.00123e2)).toEqual('0.123');
+      expect(num2str(0e5)).toEqual('0');
       expect(num2str(1.23e-19)).toEqual(`0.${'0'.repeat(18)}123`);
       expect(num2str(-1.23e-20)).toEqual(`-0.${'0'.repeat(19)}123`);
     });
