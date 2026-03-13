@@ -38,6 +38,8 @@ describe('InputNumber.Util', () => {
 
   classList.forEach(({ name, getDecimal, mockSupportBigInt }) => {
     describe(name, () => {
+      const tinyScientificValue = `0.${'0'.repeat(306)}1`;
+
       beforeEach(() => {
         supportBigInt.mockImplementation(() => {
           return mockSupportBigInt !== false;
@@ -59,6 +61,12 @@ describe('InputNumber.Util', () => {
         expect(getDecimal('-0').toString()).toEqual('0');
         expect(getDecimal('.1').toString()).toEqual('0.1');
         expect(getDecimal('1.').toString()).toEqual('1');
+      });
+
+      it('parses very small scientific notation', () => {
+        expect(getDecimal('1e-307').toString()).toEqual(
+          mockSupportBigInt === false ? '1e-307' : tinyScientificValue,
+        );
       });
 
       it('invalidate', () => {

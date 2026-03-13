@@ -59,6 +59,28 @@ export function isE(number: string | number) {
   return !Number.isNaN(Number(str)) && str.includes('e');
 }
 
+function expandScientificNotation(numStr: string) {
+  const [mantissa, exponent] = numStr.toLowerCase().split('e');
+  const exp = Number(exponent);
+  const negative = mantissa.startsWith('-');
+  const unsignedMantissa = negative ? mantissa.slice(1) : mantissa;
+  const [integer = '0', decimal = ''] = unsignedMantissa.split('.');
+  const digits = `${integer}${decimal}`.replace(/^0+/, '') || '0';
+  const decimalIndex = integer.length + exp;
+
+  let expanded = '';
+
+  if (decimalIndex <= 0) {
+    expanded = `0.${'0'.repeat(-decimalIndex)}${digits}`;
+  } else if (decimalIndex >= digits.length) {
+    expanded = `${digits}${'0'.repeat(decimalIndex - digits.length)}`;
+  } else {
+    expanded = `${digits.slice(0, decimalIndex)}.${digits.slice(decimalIndex)}`;
+  }
+
+  return `${negative ? '-' : ''}${expanded}`;
+}
+
 /**
  * [Legacy] Convert 1e-9 to 0.000000001.
  * This may lose some precision if user really want 1e-9.
@@ -99,7 +121,12 @@ export function num2str(number: number): string {
       );
     }
 
-    numStr = number.toFixed(getNumberPrecision(numStr));
+    const precision = getNumberPrecision(numStr);
+
+    numStr =
+      precision > 100
+        ? expandScientificNotation(numStr)
+        : number.toFixed(precision);
   }
 
   return trimNumber(numStr).fullStr;

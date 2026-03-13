@@ -1,5 +1,5 @@
 import type { DecimalClass, ValueType } from './interface';
-import { getNumberPrecision, isEmpty, num2str } from './numberUtil';
+import { getNumberPrecision, isE, isEmpty, num2str } from './numberUtil';
 
 /**
  * We can remove this when IE not support anymore
@@ -108,6 +108,10 @@ export default class NumberDecimal implements DecimalClass {
 
     if (this.isInvalidate()) {
       return '';
+    }
+
+    if (isE(this.number) && getNumberPrecision(this.number) > 100) {
+      return String(this.number);
     }
 
     return num2str(this.number);
