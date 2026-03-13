@@ -67,6 +67,13 @@ type ParsedScientificNotation = {
   negative: boolean;
 };
 
+/**
+ * Parse a scientific-notation string into reusable parts.
+ *
+ * The idea is to split the value into mantissa and exponent first, then
+ * normalize the mantissa into sign, integer/decimal segments, and a compact
+ * digit sequence so later logic can move the decimal point without re-parsing.
+ */
 function parseScientificNotation(numStr: string): ParsedScientificNotation {
   const [mantissa, exponent = '0'] = numStr.toLowerCase().split('e');
   const negative = mantissa.startsWith('-');
@@ -83,6 +90,13 @@ function parseScientificNotation(numStr: string): ParsedScientificNotation {
   };
 }
 
+/**
+ * Expand parsed scientific notation into a plain decimal string.
+ *
+ * The core idea is to calculate where the decimal point lands after applying
+ * the exponent, then rebuild the string by either padding zeros or inserting
+ * the decimal point inside the normalized digit sequence.
+ */
 function expandScientificNotation(parsed: ParsedScientificNotation) {
   const { decimal, digits, exponent, integer, negative } = parsed;
 
