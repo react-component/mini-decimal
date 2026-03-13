@@ -59,14 +59,22 @@ export function isE(number: string | number) {
   return !Number.isNaN(Number(str)) && str.includes('e');
 }
 
-function expandScientificNotation(numStr: string) {
+export function expandScientificNotation(numStr: string) {
   const [mantissa, exponent] = numStr.toLowerCase().split('e');
   const exp = Number(exponent);
   const negative = mantissa.startsWith('-');
   const unsignedMantissa = negative ? mantissa.slice(1) : mantissa;
   const [integer = '0', decimal = ''] = unsignedMantissa.split('.');
   const digits = `${integer}${decimal}`.replace(/^0+/, '') || '0';
-  const decimalIndex = integer.length + exp;
+
+  if (digits === '0') {
+    return '0';
+  }
+
+  const integerDigits = integer.replace(/^0+/, '').length;
+  const leadingDecimalZeros = (decimal.match(/^0*/) || [''])[0].length;
+  const initialDecimalIndex = integerDigits || -leadingDecimalZeros;
+  const decimalIndex = initialDecimalIndex + exp;
 
   let expanded = '';
 
