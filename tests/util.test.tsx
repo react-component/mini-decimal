@@ -4,6 +4,7 @@ import getMiniDecimal, {
   toFixed,
 } from '../src/MiniDecimal';
 import type { DecimalClass, ValueType } from '../src/MiniDecimal';
+import { num2str } from '../src/numberUtil';
 
 jest.mock('../src/supportUtil');
 const { supportBigInt } = require('../src/supportUtil');
@@ -38,6 +39,8 @@ describe('InputNumber.Util', () => {
 
   classList.forEach(({ name, getDecimal, mockSupportBigInt }) => {
     describe(name, () => {
+      const tinyScientificValue = `0.${'0'.repeat(306)}1`;
+
       beforeEach(() => {
         supportBigInt.mockImplementation(() => {
           return mockSupportBigInt !== false;
@@ -59,6 +62,12 @@ describe('InputNumber.Util', () => {
         expect(getDecimal('-0').toString()).toEqual('0');
         expect(getDecimal('.1').toString()).toEqual('0.1');
         expect(getDecimal('1.').toString()).toEqual('1');
+      });
+
+      it('parses very small scientific notation', () => {
+        expect(getDecimal('1e-307').toString()).toEqual(
+          mockSupportBigInt === false ? '1e-307' : tinyScientificValue,
+        );
       });
 
       it('invalidate', () => {
@@ -132,6 +141,17 @@ describe('InputNumber.Util', () => {
       expect(new BigIntDecimal('11.28').add('0.0903').toString()).toEqual(
         '11.3703',
       );
+    });
+  });
+
+  describe('scientific notation', () => {
+    it('keeps num2str behavior correct', () => {
+      expect(num2str(0.123e-1)).toEqual('0.0123');
+      expect(num2str(-0.123e-1)).toEqual('-0.0123');
+      expect(num2str(0.00123e2)).toEqual('0.123');
+      expect(num2str(0e5)).toEqual('0');
+      expect(num2str(1.23e-19)).toEqual(`0.${'0'.repeat(18)}123`);
+      expect(num2str(-1.23e-20)).toEqual(`-0.${'0'.repeat(19)}123`);
     });
   });
 

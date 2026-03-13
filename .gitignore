@@ -28,6 +28,8 @@ yarn.lock
 /es/
 package-lock.json
 .doc
+.dumi
+dist
 
 # umi
 .umi

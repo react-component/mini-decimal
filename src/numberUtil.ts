@@ -59,6 +59,77 @@ export function isE(number: string | number) {
   return !Number.isNaN(Number(str)) && str.includes('e');
 }
 
+type ParsedScientificNotation = {
+  decimal: string;
+  digits: string;
+  exponent: number;
+  integer: string;
+  negative: boolean;
+};
+
+/**
+ * Parse a scientific-notation string into reusable parts.
+ *
+ * The idea is to split the value into mantissa and exponent first, then
+ * normalize the mantissa into sign, integer/decimal segments, and a compact
+ * digit sequence so later logic can move the decimal point without re-parsing.
+ */
+function parseScientificNotation(numStr: string): ParsedScientificNotation {
+  const [mantissa, exponent = '0'] = numStr.toLowerCase().split('e');
+  const negative = mantissa.startsWith('-');
+  const unsignedMantissa = negative ? mantissa.slice(1) : mantissa;
+  const [integer = '0', decimal = ''] = unsignedMantissa.split('.');
+  const digits = `${integer}${decimal}`.replace(/^0+/, '') || '0';
+
+  return {
+    decimal,
+    digits,
+    exponent: Number(exponent),
+    integer,
+    negative,
+  };
+}
+
+/**
+ * Expand parsed scientific notation into a plain decimal string.
+ *
+ * The core idea is to calculate where the decimal point lands after applying
+ * the exponent, then rebuild the string by either padding zeros or inserting
+ * the decimal point inside the normalized digit sequence.
+ */
+function expandScientificNotation(parsed: ParsedScientificNotation) {
+  const { decimal, digits, exponent, integer, negative } = parsed;
+
+  if (digits === '0') {
+    return '0';
+  }
+
+  const integerDigits = integer.replace(/^0+/, '').length;
+  const leadingDecimalZeros = (decimal.match(/^0*/) || [''])[0].length;
+  const initialDecimalIndex = integerDigits || -leadingDecimalZeros;
+  const decimalIndex = initialDecimalIndex + exponent;
+
+  let expanded = '';
+
+  if (decimalIndex <= 0) {
+    expanded = `0.${'0'.repeat(-decimalIndex)}${digits}`;
+  } else if (decimalIndex >= digits.length) {
+    expanded = `${digits}${'0'.repeat(decimalIndex - digits.length)}`;
+  } else {
+    expanded = `${digits.slice(0, decimalIndex)}.${digits.slice(decimalIndex)}`;
+  }
+
+  return `${negative ? '-' : ''}${expanded}`;
+}
+
+function getScientificPrecision(parsed: ParsedScientificNotation) {
+  if (parsed.exponent >= 0) {
+    return Math.max(0, parsed.decimal.length - parsed.exponent);
+  }
+
+  return Math.abs(parsed.exponent) + parsed.decimal.length;
+}
+
 /**
  * [Legacy] Convert 1e-9 to 0.000000001.
  * This may lose some precision if user really want 1e-9.
@@ -67,13 +138,7 @@ export function getNumberPrecision(number: string | number) {
   const numStr: string = String(number);
 
   if (isE(number)) {
-    let precision = Number(numStr.slice(numStr.indexOf('e-') + 2));
-
-    const decimalMatch = numStr.match(/\.(\d+)/);
-    if (decimalMatch?.[1]) {
-      precision += decimalMatch[1].length;
-    }
-    return precision;
+    return getScientificPrecision(parseScientificNotation(numStr));
   }
 
   return numStr.includes('.') && validateNumber(numStr)
@@ -99,7 +164,11 @@ export function num2str(number: number): string {
       );
     }
 
-    numStr = number.toFixed(getNumberPrecision(numStr));
+    const parsed = parseScientificNotation(numStr);
+    const precision = getScientificPrecision(parsed);
+
+    numStr =
+      precision > 100 ? expandScientificNotation(parsed) : number.toFixed(precision);
   }
 
   return trimNumber(numStr).fullStr;
