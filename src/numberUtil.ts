@@ -89,13 +89,16 @@ export function getNumberPrecision(number: string | number) {
   const numStr: string = String(number);
 
   if (isE(number)) {
-    let precision = Number(numStr.slice(numStr.indexOf('e-') + 2));
+    const [mantissa, exponent = '0'] = numStr.toLowerCase().split('e');
+    const decimalMatch = mantissa.match(/\.(\d+)/);
+    const decimalLength = decimalMatch?.[1]?.length || 0;
+    const exp = Number(exponent);
 
-    const decimalMatch = numStr.match(/\.(\d+)/);
-    if (decimalMatch?.[1]) {
-      precision += decimalMatch[1].length;
+    if (exp >= 0) {
+      return Math.max(0, decimalLength - exp);
     }
-    return precision;
+
+    return Math.abs(exp) + decimalLength;
   }
 
   return numStr.includes('.') && validateNumber(numStr)
