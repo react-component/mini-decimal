@@ -4,12 +4,10 @@ import { getNumberPrecision, isE, isEmpty, num2str } from './numberUtil';
 /**
  * We can remove this when IE not support anymore
  */
-export default class NumberDecimal implements DecimalClass {
-  origin: string = '';
-  number: number;
-  empty: boolean;
-
+class NumberDecimal implements DecimalClass {
   constructor(value: ValueType) {
+    this.origin = '';
+
     if (isEmpty(value)) {
       this.empty = true;
       return;
@@ -90,7 +88,7 @@ export default class NumberDecimal implements DecimalClass {
   }
 
   equals(target: DecimalClass) {
-    return this.toNumber() === target?.toNumber();
+    return this.toNumber() === (target ? target.toNumber() : undefined);
   }
 
   lessEquals(target: DecimalClass) {
@@ -117,3 +115,11 @@ export default class NumberDecimal implements DecimalClass {
     return num2str(this.number);
   }
 }
+
+interface NumberDecimal {
+  origin: string;
+  number: number;
+  empty: boolean;
+}
+
+export default NumberDecimal;

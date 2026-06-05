@@ -7,17 +7,10 @@ import {
   validateNumber,
 } from './numberUtil';
 
-export default class BigIntDecimal implements DecimalClass {
-  origin: string = '';
-  negative: boolean;
-  integer: bigint;
-  decimal: bigint;
-  /** BigInt will convert `0009` to `9`. We need record the len of decimal */
-  decimalLen: number;
-  empty: boolean;
-  nan: boolean;
-
+class BigIntDecimal implements DecimalClass {
   constructor(value: string | number) {
+    this.origin = '';
+
     if (isEmpty(value)) {
       this.empty = true;
       return;
@@ -164,7 +157,7 @@ export default class BigIntDecimal implements DecimalClass {
   }
 
   equals(target: DecimalClass) {
-    return this.toString() === target?.toString();
+    return this.toString() === (target ? target.toString() : undefined);
   }
 
   lessEquals(target: DecimalClass) {
@@ -192,3 +185,16 @@ export default class BigIntDecimal implements DecimalClass {
     ).fullStr;
   }
 }
+
+interface BigIntDecimal {
+  origin: string;
+  negative: boolean;
+  integer: bigint;
+  decimal: bigint;
+  /** BigInt will convert `0009` to `9`. We need record the len of decimal */
+  decimalLen: number;
+  empty: boolean;
+  nan: boolean;
+}
+
+export default BigIntDecimal;
