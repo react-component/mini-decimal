@@ -13,7 +13,7 @@
   </p>
 </div>
 
-<p align="center">简体中文 | [English](./README.md)</p>
+<p align="center">简体中文 | <a href="./README.md">English</a></p>
 
 ## 亮点
 
@@ -46,12 +46,12 @@ getMiniDecimal('0.1').multi('0.2').toString(); // 0.02
 | `multi(value)`      | 乘以另一个小数值。 |
 | `negate()`          | 返回相反数。       |
 | `equal(value)`      | 判断是否相等。     |
-| `lessEquals(value)` | 比较两个小数值。   |
+| `lessEquals(value)` | 判断当前值是否小于或等于另一个小数值。 |
 
 ## 本地开发
 
 ```bash
-npm install
+ut install
 npm test
 npm run lint
 npm run tsc

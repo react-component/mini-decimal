@@ -13,7 +13,7 @@
   </p>
 </div>
 
-<p align="center">English | [简体中文](./README.zh-CN.md)</p>
+<p align="center">English | <a href="./README.zh-CN.md">简体中文</a></p>
 
 ## Highlights
 
@@ -46,12 +46,12 @@ getMiniDecimal('0.1').multi('0.2').toString(); // 0.02
 | `multi(value)`      | Multiply by another decimal value. |
 | `negate()`          | Return the negated value.          |
 | `equal(value)`      | Check equality.                    |
-| `lessEquals(value)` | Compare two decimal values.        |
+| `lessEquals(value)` | Check whether the current value is less than or equal to another decimal value. |
 
 ## Development
 
 ```bash
-npm install
+ut install
 npm test
 npm run lint
 npm run tsc

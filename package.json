@@ -36,7 +36,7 @@
     "test": "rc-test",
     "watch": "father dev",
     "build": "dumi build",
-    "tsc": "tsc -p tsconfig.json --noEmit"
+    "tsc": "npm run lint:tsc"
   },
   "dependencies": {
     "@babel/runtime": "^7.18.0"
