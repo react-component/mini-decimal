@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "target": "esnext",
+    "ignoreDeprecations": "6.0",
+    "strict": false,
     "moduleResolution": "node",
     "baseUrl": "./",
     "jsx": "preserve",
