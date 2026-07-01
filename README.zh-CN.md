@@ -51,7 +51,7 @@ getMiniDecimal('0.1').multi('0.2').toString(); // 0.02
 ## 本地开发
 
 ```bash
-ut install
+npm install
 npm test
 npm run lint
 npm run tsc
