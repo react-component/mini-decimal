@@ -1,7 +1,7 @@
 <div align="center">
   <h1>@rc-component/mini-decimal</h1>
-  <p><sub><a href="https://ant.design"><img alt="Ant Design" height="14" src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg" style="vertical-align: -0.125em;" /></a> Part of the Ant Design ecosystem.</sub></p>
-  <p>🧮 Small decimal calculator for precise string-based arithmetic.</p>
+  <p><sub><a href="https://ant.design"><img alt="Ant Design" height="14" src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg" style="vertical-align: -0.125em;" /></a> Ant Design 生态的一部分。</sub></p>
+  <p>🧮 用于精确字符串小数运算的轻量计算工具。</p>
 
   <p>
     <a href="https://npmjs.org/package/@rc-component/mini-decimal"><img alt="NPM version" src="https://img.shields.io/npm/v/@rc-component/mini-decimal.svg?style=flat-square"></a>
@@ -13,23 +13,23 @@
   </p>
 </div>
 
-<p align="center">English | [简体中文](./README.zh-CN.md)</p>
+<p align="center">简体中文 | [English](./README.md)</p>
 
-## Highlights
+## 亮点
 
-| Area    | Support                                                       |
-| ------- | ------------------------------------------------------------- |
-| Purpose | Small decimal calculator for precise string-based arithmetic. |
-| Package | `@rc-component/mini-decimal`                                  |
-| Release | `@rc-component/np` / `rc-np`                                  |
+| 方向 | 支持                                   |
+| ---- | -------------------------------------- |
+| 定位 | 用于精确字符串小数运算的轻量计算工具。 |
+| 包名 | `@rc-component/mini-decimal`           |
+| 发布 | `@rc-component/np` / `rc-np`           |
 
-## Install
+## 安装
 
 ```bash
 npm install @rc-component/mini-decimal
 ```
 
-## Usage
+## 用法
 
 ```tsx | pure
 import getMiniDecimal from '@rc-component/mini-decimal';
@@ -40,15 +40,15 @@ getMiniDecimal('0.1').multi('0.2').toString(); // 0.02
 
 ## API
 
-| Method              | Description                        |
-| ------------------- | ---------------------------------- |
-| `add(value)`        | Add another decimal value.         |
-| `multi(value)`      | Multiply by another decimal value. |
-| `negate()`          | Return the negated value.          |
-| `equal(value)`      | Check equality.                    |
-| `lessEquals(value)` | Compare two decimal values.        |
+| 名称                | 说明               |
+| ------------------- | ------------------ |
+| `add(value)`        | 加上另一个小数值。 |
+| `multi(value)`      | 乘以另一个小数值。 |
+| `negate()`          | 返回相反数。       |
+| `equal(value)`      | 判断是否相等。     |
+| `lessEquals(value)` | 比较两个小数值。   |
 
-## Development
+## 本地开发
 
 ```bash
 npm install
@@ -58,16 +58,16 @@ npm run tsc
 npm run compile
 ```
 
-The dumi site runs at `http://localhost:8000`.
+本地 dumi 站点默认运行在 `http://localhost:8000`.
 
-## Release
+## 发布
 
 ```bash
 npm run prepublishOnly
 ```
 
-The release flow is handled by `@rc-component/np` through the `rc-np` command when the package uses the shared release flow.
+发布流程通过 `@rc-component/np` 提供的 `rc-np` 命令处理。
 
-## License
+## 许可证
 
-@rc-component/mini-decimal is released under the [MIT](./LICENSE) license.
+@rc-component/mini-decimal 基于 [MIT](./LICENSE) 协议发布。
