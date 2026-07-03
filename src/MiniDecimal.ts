@@ -1,13 +1,14 @@
-/* eslint-disable max-classes-per-file */
+/* eslint @typescript-eslint/consistent-type-exports: off */
 
-import BigIntDecimal from './BigIntDecimal';
-import NumberDecimal from './NumberDecimal';
+import BigIntDecimalBase from './BigIntDecimal';
+import NumberDecimalBase from './NumberDecimal';
 import type { DecimalClass, ValueType } from './interface';
 import { trimNumber } from './numberUtil';
 import { supportBigInt } from './supportUtil';
 
 // Still support origin export
-export { NumberDecimal, BigIntDecimal };
+export const NumberDecimal = NumberDecimalBase;
+export const BigIntDecimal = BigIntDecimalBase;
 
 export type { DecimalClass, ValueType };
 

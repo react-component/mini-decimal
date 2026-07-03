@@ -1,3 +1,5 @@
+/* eslint @typescript-eslint/consistent-type-exports: off */
+
 import getMiniDecimal from './MiniDecimal';
 export * from './MiniDecimal';
 import {
