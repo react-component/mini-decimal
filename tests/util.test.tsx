@@ -152,6 +152,8 @@ describe('InputNumber.Util', () => {
       expect(num2str(0e5)).toEqual('0');
       expect(num2str(1.23e-19)).toEqual(`0.${'0'.repeat(18)}123`);
       expect(num2str(-1.23e-20)).toEqual(`-0.${'0'.repeat(19)}123`);
+      expect(num2str(1.23e1)).toEqual('12.3');
+      expect(num2str(1.23e5)).toEqual('123000');
     });
   });
 
