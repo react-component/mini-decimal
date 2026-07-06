@@ -109,15 +109,12 @@ function expandScientificNotation(parsed: ParsedScientificNotation) {
   const initialDecimalIndex = integerDigits || -leadingDecimalZeros;
   const decimalIndex = initialDecimalIndex + exponent;
 
-  let expanded = '';
-
-  if (decimalIndex <= 0) {
-    expanded = `0.${'0'.repeat(-decimalIndex)}${digits}`;
-  } else if (decimalIndex >= digits.length) {
-    expanded = `${digits}${'0'.repeat(decimalIndex - digits.length)}`;
-  } else {
-    expanded = `${digits.slice(0, decimalIndex)}.${digits.slice(decimalIndex)}`;
-  }
+  const expanded =
+    decimalIndex <= 0
+      ? `0.${'0'.repeat(-decimalIndex)}${digits}`
+      : decimalIndex >= digits.length
+        ? `${digits}${'0'.repeat(decimalIndex - digits.length)}`
+        : `${digits.slice(0, decimalIndex)}.${digits.slice(decimalIndex)}`;
 
   return `${negative ? '-' : ''}${expanded}`;
 }
