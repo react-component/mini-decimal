@@ -109,6 +109,7 @@ function expandScientificNotation(parsed: ParsedScientificNotation) {
   const initialDecimalIndex = integerDigits || -leadingDecimalZeros;
   const decimalIndex = initialDecimalIndex + exponent;
 
+  // eslint-disable-next-line no-useless-assignment
   let expanded = '';
 
   if (decimalIndex <= 0) {
