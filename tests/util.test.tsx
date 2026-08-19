@@ -186,5 +186,11 @@ describe('InputNumber.Util', () => {
       // expect(toFixed('77.88', '.', 1)).toEqual('77.9');
       expect(toFixed('-77.88', '.', 1)).toEqual('-77.9');
     });
+
+    it('normalizes negative zero at integer precision', () => {
+      expect(toFixed('-0.4', '.', 0)).toEqual('0');
+      expect(toFixed('-0.5', '.', 0)).toEqual('-1');
+      expect(toFixed('-0.9', '.', 0, true)).toEqual('0');
+    });
   });
 });

@@ -56,7 +56,7 @@ export function toFixed(
     }
 
     if (precision === 0) {
-      return numberWithoutDecimal;
+      return integerStr === '0' ? integerStr : numberWithoutDecimal;
     }
 
     return `${numberWithoutDecimal}${separatorStr}${decimalStr
